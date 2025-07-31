@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JEE PYQ MCQ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    #question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    #options button {
+      display: block;
+      margin: 5px auto;
+      padding: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+    #timer {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+    #navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    #navigation button {
+      padding: 10px 20px;
+      background-color: #28a745; /* Green */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #navigation button:hover {
+      background-color: #218838; /* Darker green on hover */
+    }
+    #solution {
+      margin-top: 10px;
+      color: blue;
+    }
+    #show-solution {
+      display: inline-block;
+      margin: 10px auto;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #show-solution:hover {
+      background-color: #0056b3;
+    }
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="question">Loading question...</div>
+
+  <div class="center">
+    <button id="show-solution" onclick="showSolution()">Show Solution</button>
+  </div>
+
+  <div id="options"></div>
+  <div id="timer">Time Taken: 00:00:00</div>
+
+  <div id="navigation">
+    <button onclick="prevQuestion()">Previous</button>
+    <button onclick="nextQuestion()">Next</button>
+  </div>
+
+  <div id="solution" style="display:none;"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "Which gas is used in bulbs?",
+        options: ["Oxygen", "Nitrogen", "Argon", "Neon"],
+        answer: "Neon",
+        solution: "Neon gas is used in some types of light bulbs and advertising signs."
+      },
+      {
+        question: "What is H2O?",
+        options: ["Salt", "Oxygen", "Water", "Hydrogen"],
+        answer: "Water",
+        solution: "H2O is the chemical formula for water, made of two hydrogen atoms and one oxygen atom."
+      },
+      {
+        question: "5 + 2?",
+        options: ["A", "B", "C", "D"],
+        answer: "A",
+        solution: "Assuming option A corresponds to 7, the correct answer is 5 + 2 = 7."
+      },
+      {
+        question: "While measuring diameter of wire using screw gauge, the following readings were noted...",
+        options: ["A", "B", "C", "D"],
+        answer: "A",
+        solution: `<p><strong>To determine the diameter of the wire using a screw gauge</strong>, we employ the formula:</p>
+                   <p><strong>Total reading</strong> = MSR + (CSR × LC)</p>
+                   <p><strong>Where:</strong></p>
+                   <ul>
+                     <li><strong>MSR (Main Scale Reading)</strong> is the value read directly from the main scale in mm.</li>
+                     <li><strong>CSR (Circular Scale Reading)</strong> is the number of divisions observed on the circular scale.</li>
+                     <li><strong>LC (Least Count)</strong> is the value of one division on the circular scale, calculated as:</li>
+                   </ul>
+                   <p><strong>LC = Pitch / Number of divisions on the circular scale</strong></p>
+                   <p><strong>Given:</strong></p>
+                   <ul>
+                     <li>Main Scale Reading (MSR) = 1 mm</li>
+                     <li>Circular Scale Reading (CSR) = 42 divisions</li>
+                     <li>Pitch of screw gauge = 1 mm</li>
+                     <li>LC = 1 mm / 100 = 0.01 mm</li>
+                   </ul>
+                   <p><strong>Total Reading = 1 + (42 × 0.01) = 1.42 mm</strong></p>
+                   <p><strong>∴ Diameter = 1.42 mm → x = 71</strong></p>`
+      }
+    ];
+
+    let currentIndex = 0;
+    let timer = 0;
+    let interval = null;
+    let answered = false;
+
+    function formatTime(seconds) {
+      const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(seconds % 60).padStart(2, '0');
+      return `${hrs}:${mins}:${secs}`;
+    }
+
+    function startTimer() {
+      timer = 0;
+      interval = setInterval(() => {
+        timer++;
+        document.getElementById("timer").textContent = `Time Taken: ${formatTime(timer)}`;
+      }, 1000);
+    }
+
+    function showQuestion() {
+      const question = questions[currentIndex];
+      const questionContainer = document.getElementById("question");
+      const optionsContainer = document.getElementById("options");
+
+      questionContainer.textContent = question.question;
+      optionsContainer.innerHTML = "";
+
+      question.options.forEach(option => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.onclick = function () {
+          selectOption(button);
+        };
+        optionsContainer.appendChild(button);
+      });
+
+      timer = 0;
+      document.getElementById("timer").textContent = "Time Taken: 00:00:00";
+      answered = false;
+      clearInterval(interval);
+      startTimer();
+
+      document.getElementById("solution").style.display = "none";
+      document.getElementById("solution").innerHTML = "";
+      document.getElementById("show-solution").style.display = "inline-block";
+    }
+
+    function selectOption(selectedOption) {
+      if (answered) return;
+      answered = true;
+      clearInterval(interval);
+
+      const question = questions[currentIndex];
+      const optionButtons = document.querySelectorAll("#options button");
+
+      if (selectedOption.textContent === question.answer) {
+        selectedOption.style.backgroundColor = "green";
+      } else {
+        selectedOption.style.backgroundColor = "red";
+        optionButtons.forEach(btn => {
+          if (btn.textContent === question.answer) {
+            btn.style.backgroundColor = "green";
+          }
+        });
+      }
+    }
+
+    function showSolution() {
+      const question = questions[currentIndex];
+
+      if (!answered) {
+        answered = true;
+        clearInterval(interval);
+
+        const optionButtons = document.querySelectorAll("#options button");
+        optionButtons.forEach(btn => {
+          if (btn.textContent === question.answer) {
+            btn.style.backgroundColor = "green";
+          }
+          btn.onclick = null;
+        });
+      }
+
+      document.getElementById("solution").innerHTML = question.solution || "No solution provided.";
+      document.getElementById("solution").style.display = "block";
+      document.getElementById("show-solution").style.display = "none";
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        showQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showQuestion();
+      }
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
