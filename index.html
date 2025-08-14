@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Physics Practice Login</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f7fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  #login-container, #dashboard {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgb(0 0 0 / 0.1);
+    width: 320px;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  button {
+    width: 100%;
+    background-color: #3b82f6;
+    border: none;
+    padding: 12px;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 10px 0;
+    font-size: 16px;
+  }
+  button:hover {
+    background-color: #2563eb;
+  }
+
+  #dashboard button {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  #logoutBtn {
+    margin-top: 20px;
+    background-color: #ef4444;
+  }
+</style>
+</head>
+<body>
+
+<div id="login-container">
+  <h2>Login / Signup</h2>
+  <input id="email" type="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Password" />
+  <button id="emailLoginBtn">Login / Signup with Email</button>
+  <button id="googleLoginBtn">Login with Google</button>
+  <p id="loginError" style="color: red;"></p>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <h2>Welcome, <span id="userEmail"></span></h2>
+  <button id="examWiseBtn">Exam-wise Practice</button>
+  <button id="topicWiseBtn">Topic-wise Practice</button>
+  <button id="mockTestBtn">Mock Test</button>
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBdLZ70kl8YD5GkUynzMym9Csm0Pt0asSk",
+    authDomain: "pyqs-a8c28.firebaseapp.com",
+    projectId: "pyqs-a8c28",
+    storageBucket: "pyqs-a8c28.firebasestorage.app",
+    messagingSenderId: "53606807172",
+    appId: "1:53606807172:web:12cb31e4f01c7739af74d1",
+    measurementId: "G-70TB1JTZRM"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const loginContainer = document.getElementById('login-container');
+  const dashboard = document.getElementById('dashboard');
+  const userEmailSpan = document.getElementById('userEmail');
+  const loginError = document.getElementById('loginError');
+
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const emailLoginBtn = document.getElementById('emailLoginBtn');
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      loginContainer.style.display = 'none';
+      dashboard.style.display = 'block';
+      userEmailSpan.textContent = user.email;
+    } else {
+      loginContainer.style.display = 'block';
+      dashboard.style.display = 'none';
+      userEmailSpan.textContent = '';
+    }
+  });
+
+  emailLoginBtn.addEventListener('click', async () => {
+    loginError.textContent = '';
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      loginError.textContent = "Please enter email and password.";
+      return;
+    }
+
+    try {
+      // Try sign in first
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        try {
+          // Create user if not found
+          await createUserWithEmailAndPassword(auth, email, password);
+        } catch (err) {
+          loginError.textContent = err.message;
+        }
+      } else {
+        loginError.textContent = error.message;
+      }
+    }
+  });
+
+  googleLoginBtn.addEventListener('click', async () => {
+    loginError.textContent = '';
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      loginError.textContent = error.message;
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    signOut(auth);
+  });
+
+  document.getElementById('examWiseBtn').addEventListener('click', () => {
+    alert('Navigate to Exam-wise practice page');
+  });
+
+  document.getElementById('topicWiseBtn').addEventListener('click', () => {
+    alert('Navigate to Topic-wise practice page');
+  });
+
+  document.getElementById('mockTestBtn').addEventListener('click', () => {
+    alert('Navigate to Mock test page');
+  });
+</script>
+
+</body>
+</html>
